@@ -1,169 +1,189 @@
-/**
- * ============================================================================
- * مكتبة توليد تقارير الدعم الفني الآلية (ReportLibrary) - مع الرسم البياني الشامل
- * ============================================================================
- */
-
-function generateReportFromLibrary(startDateInput, endDateInput) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var masterSheet = ss.getSheetByName("Report") || ss.getSheets()[0]; 
+// function generateReportFromLibrary(startDateInput, endDateInput) {
+//   var ss = SpreadsheetApp.getActiveSpreadsheet();
+//   var masterSheet = ss.getSheetByName("Report") || ss.getSheets()[0]; 
   
-  if (!masterSheet) {
-    return { success: false, error: "لم يتم العثور على ورقة البيانات المطلوبة." };
-  }
+//   if (!masterSheet) {
+//     return { success: false, error: "لم يتم العثور على ورقة البيانات المطلوبة." };
+//   }
 
-  // ⚙️ [تعديل الإعدادات والأعمدة هنا] ----------------------------------------
-  var START_ROW = 37;
-  var DATE_COL = 7;
-  var STATUS_COL = 12;
-  var TASK_TYPE_COL = 10;
-  var TASK_CATEGORY_COL = 11;
+//   // ⚙️ [تعديل الإعدادات والأعمدة هنا] ----------------------------------------
+//   var START_ROW = 37;
+//   var DATE_COL = 7;
+//   var STATUS_COL = 12;
+//   var TASK_TYPE_COL = 10;
+//   var TASK_CATEGORY_COL = 11;
 
-  // IDs نموذج التقرير ومجلد الحفظ
-  const TEMPLATE_ID   = '1nITCSSbp9j6Ktfsctg8x-aeRJEr4UBdQ15vM5ZHTfVI'; // v-6
-  // const TEMPLATE_ID   = '1EFRw1teEpAorZUNE6OF89ydSBoIgkX4iqbcSnPEmTlY'; // v-5
-  // const TEMPLATE_ID   = '1AvSlcKgz-GOpSruRcBCUtZZAD_UV5_qd3hNUnKBKYtY'; // v-4
-  const FOLDER_ID = '1ib6QCtktE8L_Y0Va46ZBJ8-4dj5n4Hn1';
-  // ------------------------------------------------------------------------
+//   // IDs نموذج التقرير ومجلد الحفظ
+//   const TEMPLATE_ID   = '1EFRw1teEpAorZUNE6OF89ydSBoIgkX4iqbcSnPEmTlY'; // v-5
+//   // const TEMPLATE_ID   = '1AvSlcKgz-GOpSruRcBCUtZZAD_UV5_qd3hNUnKBKYtY'; // v-4
+//   const FOLDER_ID = '1ib6QCtktE8L_Y0Va46ZBJ8-4dj5n4Hn1';
+//   // ------------------------------------------------------------------------
 
-  // 1. معالجة وتجهيز نطاق التواريخ
-  var startParts = startDateInput.split('-');
-  var endParts = endDateInput.split('-');
+//   // 1. معالجة وتجهيز نطاق التواريخ
+//   var startParts = startDateInput.split('-');
+//   var endParts = endDateInput.split('-');
 
-  var startDateObj = new Date(startParts[0], parseInt(startParts[1], 10) - 1, startParts[2]);
-  startDateObj.setHours(0, 0, 0, 0);
-  var startTime = startDateObj.getTime();
+//   var startDateObj = new Date(startParts[0], parseInt(startParts[1], 10) - 1, startParts[2]);
+//   startDateObj.setHours(0, 0, 0, 0);
+//   var startTime = startDateObj.getTime();
 
-  var endDateObj = new Date(endParts[0], parseInt(endParts[1], 10) - 1, endParts[2]);
-  endDateObj.setHours(23, 59, 59, 999);
-  var endTime = endDateObj.getTime();
+//   var endDateObj = new Date(endParts[0], parseInt(endParts[1], 10) - 1, endParts[2]);
+//   endDateObj.setHours(23, 59, 59, 999);
+//   var endTime = endDateObj.getTime();
 
-  var arabicMonths = [
-    "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
-    "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
-  ];
-  var monthIndex = parseInt(startParts[1], 10) - 1;
-  var monthNameArabic = arabicMonths[monthIndex] || "";
-  var yearString = String(startParts[0]);
+//   var arabicMonths = [
+//     "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+//     "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
+//   ];
+//   var monthIndex = parseInt(startParts[1], 10) - 1;
+//   var monthNameArabic = arabicMonths[monthIndex] || "";
+//   var yearString = String(startParts[0]);
 
-  // 2. قراءة البيانات الخام مباشرة لتجاوز الفلاتر
-  var lastRow = masterSheet.getLastRow();
-  var lastCol = masterSheet.getLastColumn();
+//   // 2. قراءة البيانات الخام مباشرة لتجاوز الفلاتر
+//   var lastRow = masterSheet.getLastRow();
+//   var lastCol = masterSheet.getLastColumn();
   
-  if (lastRow < START_ROW) {
-    return { success: false, error: "لا توجد بيانات كافية في ورقة العمل." };
-  }
+//   if (lastRow < START_ROW) {
+//     return { success: false, error: "لا توجد بيانات كافية في ورقة العمل." };
+//   }
   
-  var data = masterSheet.getRange(1, 1, lastRow, lastCol).getValues();
+//   var data = masterSheet.getRange(1, 1, lastRow, lastCol).getValues();
 
-  var totalTasks = 0;
-  var completedTasks = 0;
-  var pendingTasks = 0;
+//   var totalTasks = 0;
+//   var completedTasks = 0;
+//   var pendingTasks = 0;
 
-  // عدادات المتغيرات الـ 7 الجديدة
-  var counts = {
-    TotalTaskRequest: 0,   // طلبات الخدمة
-    TotalTechReq: 0,       // مراسلات مواصفات
-    TotalEvaluation: 0,   // مراسلات تحليل
-    TotalOthers: 0,      // مراسلات أخرى
-    TotalCalls: 0,             // اتصال
-    TotalDirectRequests: 0,    // طلب مباشر
-    TotalDirectAssignments: 0  // تكليف مباشر
-  };
+//   // عدادات المتغيرات الـ 7 الجديدة
+//   var counts = {
+//     TotalTaskRequest: 0,   // طلبات الخدمة
+//     TotalTechReq: 0,       // مراسلات مواصفات
+//     TotalEvaluation: 0,   // مراسلات تحليل
+//     TotalOthers: 0,      // مراسلات أخرى
+//     TotalCalls: 0,             // اتصال
+//     TotalDirectRequests: 0,    // طلب مباشر
+//     TotalDirectAssignments: 0  // تكليف مباشر
+//   };
 
-  // 3. فلترة البيانات وحساب الإحصائيات
-  for (var i = START_ROW - 1; i < data.length; i++) {
-    var rawDate = data[i][DATE_COL - 1];
-    if (!rawDate) continue;
+//   // 3. فلترة البيانات وحساب الإحصائيات
+//   for (var i = START_ROW - 1; i < data.length; i++) {
+//     var rawDate = data[i][DATE_COL - 1];
+//     if (!rawDate) continue;
 
-    var rowDateObj = parseSheetDate(rawDate);
+//     var rowDateObj = parseSheetDate(rawDate);
     
-    if (rowDateObj) {
-      var rowTime = rowDateObj.getTime();
+//     if (rowDateObj) {
+//       var rowTime = rowDateObj.getTime();
 
-      if (rowTime >= startTime && rowTime <= endTime) {
-        totalTasks++;
+//       if (rowTime >= startTime && rowTime <= endTime) {
+//         totalTasks++;
         
-        // حساب حالة المهمة
-        var status = String(data[i][STATUS_COL - 1] || "").trim().toLowerCase();
-        if (status === "مكتملة" || status === "مكتمل" || status === "completed") {
-          completedTasks++;
-        } else {
-          pendingTasks++;
-        }
+//         // حساب حالة المهمة
+//         var status = String(data[i][STATUS_COL - 1] || "").trim().toLowerCase();
+//         if (status === "مكتملة" || status === "مكتمل" || status === "completed") {
+//           completedTasks++;
 
-        // تصنيف ونسبة المتغيرات الـ 7 بناءً على عمود نوع الطلب
-        var typeVal = String(data[i][TASK_TYPE_COL - 1] || "").trim().toLowerCase();
+//           // تصنيف ونسبة المتغيرات الـ 7 بناءً على عمود نوع الطلب
+//           var typeVal = String(data[i][TASK_TYPE_COL - 1] || "").trim().toLowerCase();
 
-        if (typeVal.indexOf("خدمة") !== -1 || typeVal.indexOf("طلبات الخدمة") !== -1) {
-          counts.TotalTaskRequest++;
-        } else if (typeVal.indexOf("مواصفات") !== -1) {
-          counts.TotalTechReq++;
-        } else if (typeVal.indexOf("تحليل") !== -1) {
-          counts.TotalEvaluation++;
-        } else if (typeVal.indexOf("مراسلات") !== -1 || typeVal.indexOf("أخرى") !== -1) {
-          counts.TotalOthers++;
-        } else if (typeVal.indexOf("اتصال") !== -1 || typeVal.indexOf("هاتف") !== -1) {
-          counts.TotalCalls++;
-        } else if (typeVal.indexOf("طلب مباشر") !== -1) {
-          counts.TotalDirectRequests++;
-        } else if (typeVal.indexOf("تكليف") !== -1 || typeVal.indexOf("تكليف مباشر") !== -1) {
-          counts.TotalDirectAssignments++;
-        }
-      }
-    }
-  }
+//           if (typeVal.indexOf("طلب خدمة") !== -1) {
+//             counts.TotalTaskRequest++;
+//           }
+//           else if (typeVal.indexOf("اتصال") !== -1) {
+//             counts.TotalCalls++;
+//           }
+//           else if (typeVal.indexOf("طلب مباشر") !== -1) {
+//             counts.TotalDirectRequests++;
+//           }
+//           else if (typeVal.indexOf("تكليف مباشر") !== -1) {
+//             counts.TotalDirectAssignments++;
+//           }
+//           else if (typeVal.indexOf("مراسلة") !== -1) {
+//             // counts.TotalCalls++;
+//             var typeValC = String(data[i][TASK_CATEGORY_COL - 1] || "").trim().toLowerCase();
 
-  // 4. إنشاء المستند واستبدال الوسوم والرسوم البيانية
-  try {
-    var templateFile = DriveApp.getFileById(TEMPLATE_ID);
-    var targetFolder = DriveApp.getFolderById(FOLDER_ID);
+//             if (typeValC.indexOf("المواصفات الفنية") !== -1) {
+//               counts.TotalTechReq++;
+//             }
+//             if (typeValC.indexOf("التحليل والتقييم") !== -1) {
+//               counts.TotalEvaluation++;
+//             }
+//             if (typeValC.indexOf("أخرى") !== -1) {
+//               counts.TotalOthers++;
+//             }
+//           }
+//         } else {
+//           pendingTasks++;
+//         }
+//       }
+//     }
+//   }
+
+//   // 4. إنشاء المستند واستبدال الوسوم والرسوم البيانية
+//   try {
+//     var templateFile = DriveApp.getFileById(TEMPLATE_ID);
+//     var targetFolder = DriveApp.getFolderById(FOLDER_ID);
     
-    var newDocName = "تقرير الدعم الفني - " + monthNameArabic + " " + yearString;
-    var newDocFile = templateFile.makeCopy(newDocName, targetFolder);
-    var doc = DocumentApp.openById(newDocFile.getId());
+//     var newDocName = "تقرير الدعم الفني - " + monthNameArabic + " " + yearString;
+//     var newDocFile = templateFile.makeCopy(newDocName, targetFolder);
+//     var doc = DocumentApp.openById(newDocFile.getId());
 
-    // تجهيز قائمة الوسوم الاستبدالية بما فيها المتغيرات الـ 7
-    var replacements = {
-      "<<الشهر>>": String(monthNameArabic || ""),
-      "<<السنة>>": String(yearString || ""),
-      "<<طلبات_الخدمة>>": String(counts.TotalTaskRequest),
-      "<<مراسلات_مواصفات>>": String(counts.TotalTechReq),
-      "<<مراسلات_تحليل>>": String(counts.TotalEvaluation),
-      "<<مراسلات_أخرى>>": String(counts.TotalOthers),
-      "<<اتصال>>": String(counts.TotalCalls),
-      "<<طلب_مباشر>>": String(counts.TotalDirectRequests),
-      "<<تكليف_مباشر>>": String(counts.TotalDirectAssignments)
-    };
+//     // تجهيز قائمة الوسوم الاستبدالية بما فيها المتغيرات الـ 7
+//     var replacements = {
+//       "<<الشهر>>": String(monthNameArabic || ""),
+//       "<<السنة>>": String(yearString || ""),
+//       "<<طلبات_الخدمة>>": String(counts.TotalTaskRequest),
+//       "<<مراسلات_مواصفات>>": String(counts.TotalTechReq),
+//       "<<مراسلات_تحليل>>": String(counts.TotalEvaluation),
+//       "<<مراسلات_أخرى>>": String(counts.TotalOthers),
+//       "<<اتصال>>": String(counts.TotalCalls),
+//       "<<طلب_مباشر>>": String(counts.TotalDirectRequests),
+//       "<<تكليف_مباشر>>": String(counts.TotalDirectAssignments),
+//       "<<مجموع_عدد_المهام>>": String(completedTasks)
+//     };
 
-    // أ) استبدال الوسوم النصية والجداول
-    replaceAllTags(doc, replacements);
+//     // أ) استبدال الوسوم النصية والجداول
+//     replaceAllTags(doc, replacements);
 
-    // ب) إنشاء الرسم البياني الأفقي (Bar Chart) الشامل وإدراجه
-    if (totalTasks > 0) {
-      // var chartResult = createMultiVariableChart(masterSheet, counts, monthNameArabic, yearString);
-      var chartResult = createMultiVariableChart_dnt(masterSheet, counts, monthNameArabic, yearString);
-      // replaceTagWithImage(doc, "<<الرسم_البياني>>", chartResult);
-      replaceTagWithImage_dnt(doc, "<<الرسم_البياني>>", chartResult);
-    } else {
-      doc.getBody().replaceText("<<الرسم_البياني>>", "لا توجد بيانات للعرض البياني خلال هذه الفترة");
-    }
+//     // ب) إنشاء الرسم البياني الأفقي (Bar Chart) الشامل وإدراجه
+//     if (totalTasks > 0) {
+//       // var chartImage = createMultiVariableChart(masterSheet, counts);
+//       // var chartImage = createMultiVariableChart_dnt(masterSheet, counts, monthNameArabic, yearString);
+//       // var chartImage = createMultiVariableChart_dnt_all(masterSheet, counts, monthNameArabic, yearString);
+//       var chartImage = createMultiVariableChart_dnt_all(masterSheet, counts, startDateInput, endDateInput);
+//       // replaceTagWithImage(doc, "<<الرسم_البياني>>", chartImage);
+//       // replaceTagWithImage_dnt(doc, "<<الرسم_البياني>>", chartImage);
+//       replaceTagWithImage_dnt_all(doc, "<<الرسم_البياني>>", chartImage);
+//     } else {
+//       doc.getBody().replaceText("<<الرسم_البياني>>", "لا توجد بيانات للعرض البياني خلال هذه الفترة");
+//     }
 
-    doc.saveAndClose();
+//     // 
+//     if (totalTasks > 0) {
+//       // var chartImage = createMultiVariableChart(masterSheet, counts, monthNameArabic, yearString);
+//       // var chartImage = createMultiVariableChart_dnt(masterSheet, counts, monthNameArabic, yearString);
+//       // var chartImage = createMultiVariableChart_dnt_all(masterSheet, counts, monthNameArabic, yearString);
+//       var chartImage = createMultiVariableChart_dnt_all(masterSheet, counts, startDateInput, endDateInput);
+//       // replaceTagWithImage(doc, "<<الرسم_البياني>>", chartImage);
+//       // replaceTagWithImage_dnt(doc, "<<الرسم_البياني>>", chartImage);
+//       replaceTagWithImage_dnt_all(doc, "<<الرسم_البياني>>", chartImage);
+//     }
+//     // 
 
-    return {
-      success: true,
-      url: newDocFile.getUrl(),
-      total: totalTasks
-    };
+//     doc.saveAndClose();
 
-  } catch (e) {
-    return {
-      success: false,
-      error: e.toString()
-    };
-  }
-}
+//     return {
+//       success: true,
+//       url: newDocFile.getUrl(),
+//       total: totalTasks
+//     };
+
+//   } catch (e) {
+//     return {
+//       success: false,
+//       error: e.toString()
+//     };
+//   }
+// }
 
 /**
  * ============================================================================
@@ -187,7 +207,8 @@ function generateReportFromLibrary(startDateInput, endDateInput) {
   var TASK_CATEGORY_COL = 11;
 
   // IDs نموذج التقرير ومجلد الحفظ
-  const TEMPLATE_ID   = '1EFRw1teEpAorZUNE6OF89ydSBoIgkX4iqbcSnPEmTlY'; // v-5
+  const TEMPLATE_ID   = '1ZD6-gNFgNjBZrxSWQxVDa5bvh8rylYDBVhuDaFSzjKk'; // v-7
+  // const TEMPLATE_ID   = '1EFRw1teEpAorZUNE6OF89ydSBoIgkX4iqbcSnPEmTlY'; // v-5
   // const TEMPLATE_ID   = '1AvSlcKgz-GOpSruRcBCUtZZAD_UV5_qd3hNUnKBKYtY'; // v-4
   const FOLDER_ID = '1ib6QCtktE8L_Y0Va46ZBJ8-4dj5n4Hn1';
   // ------------------------------------------------------------------------
@@ -304,6 +325,10 @@ function generateReportFromLibrary(startDateInput, endDateInput) {
     var replacements = {
       "<<الشهر>>": String(monthNameArabic || ""),
       "<<السنة>>": String(yearString || ""),
+      // "<<من_تاريخ>>":         startDateInput,   // ← جديد
+      // "<<إلى_تاريخ>>":        endDateInput,      // ← جديد
+      "<<من_تاريخ>>":  formatArabicDate(startDateInput),
+      "<<إلى_تاريخ>>": formatArabicDate(endDateInput),
       "<<طلبات_الخدمة>>": String(counts.TotalTaskRequest),
       "<<مراسلات_مواصفات>>": String(counts.TotalTechReq),
       "<<مراسلات_تحليل>>": String(counts.TotalEvaluation),
@@ -320,9 +345,13 @@ function generateReportFromLibrary(startDateInput, endDateInput) {
     // ب) إنشاء الرسم البياني الأفقي (Bar Chart) الشامل وإدراجه
     if (totalTasks > 0) {
       // var chartImage = createMultiVariableChart(masterSheet, counts);
-      var chartImage = createMultiVariableChart_dnt(masterSheet, counts, monthNameArabic, yearString);
+      // var chartImage = createMultiVariableChart_dnt(masterSheet, counts, monthNameArabic, yearString);
+      // var chartImage = createMultiVariableChart_dnt_all(masterSheet, counts, monthNameArabic, yearString);
+      // var chartImage = createMultiVariableChart_dnt_all(masterSheet, counts, startDateInput, endDateInput);
+      var chartImage = createMultiVariableChart(masterSheet, counts, formatArabicDate(startDateInput), formatArabicDate(endDateInput));
       // replaceTagWithImage(doc, "<<الرسم_البياني>>", chartImage);
-      replaceTagWithImage_dnt(doc, "<<الرسم_البياني>>", chartImage);
+      // replaceTagWithImage_dnt(doc, "<<الرسم_البياني>>", chartImage);
+      replaceTagWithImage_dnt_all(doc, "<<الرسم_البياني>>", chartImage);
     } else {
       doc.getBody().replaceText("<<الرسم_البياني>>", "لا توجد بيانات للعرض البياني خلال هذه الفترة");
     }
@@ -330,9 +359,13 @@ function generateReportFromLibrary(startDateInput, endDateInput) {
     // 
     if (totalTasks > 0) {
       // var chartImage = createMultiVariableChart(masterSheet, counts, monthNameArabic, yearString);
-      var chartImage = createMultiVariableChart_dnt(masterSheet, counts, monthNameArabic, yearString);
+      // var chartImage = createMultiVariableChart_dnt(masterSheet, counts, monthNameArabic, yearString);
+      // var chartImage = createMultiVariableChart_dnt_all(masterSheet, counts, monthNameArabic, yearString);
+      // var chartImage = createMultiVariableChart_dnt_all(masterSheet, counts, startDateInput, endDateInput);
+      var chartImage = createMultiVariableChart(masterSheet, counts, formatArabicDate(startDateInput), formatArabicDate(endDateInput));
       // replaceTagWithImage(doc, "<<الرسم_البياني>>", chartImage);
-      replaceTagWithImage_dnt(doc, "<<الرسم_البياني>>", chartImage);
+      // replaceTagWithImage_dnt(doc, "<<الرسم_البياني>>", chartImage);
+      replaceTagWithImage_dnt_all(doc, "<<الرسم_البياني>>", chartImage);
     }
     // 
 
@@ -473,75 +506,33 @@ function replaceTagWithImage_dnt(doc, tag, imageBlob) {
   img.setHeight(Math.round(420 * _chartH / _chartW)); // 420 × 520/640 = 341
 }
 
-// function replaceTagWithImage(doc, tag, imageBlob) {
-//   if (!imageBlob) {
-//     doc.getBody().replaceText(tag, "[تعذّر إنشاء الرسم البياني]");
-//     return;
-//   }
+function replaceTagWithImage_dnt_all(doc, tag, imageBlob) {
+  if (!imageBlob) {
+    doc.getBody().replaceText(tag, "[تعذّر إنشاء الرسم البياني]");
+    return;
+  }
 
-//   var body  = doc.getBody();
-//   var found = body.findText(tag);
-//   if (!found) return;
+  var body  = doc.getBody();
+  var found = body.findText(tag);
+  if (!found) return;
 
-//   var parent = found.getElement().getParent();
-//   var dW = 451;
-//   var dH = Math.round(dW * _chartH / _chartW); // 440 × 420/600 = 308
+  // الفقرة الحاوية للوسم دائماً
+  var para = found.getElement().getParent().asParagraph();
 
-//   if (parent.getType() === DocumentApp.ElementType.PARAGRAPH) {
-//     var para = parent.asParagraph();
-//     para.setText("");
-//     para.setAlignment(DocumentApp.HorizontalAlignment.CENTER);
-//     var img = para.appendInlineImage(imageBlob);
-//     img.setWidth(dW);
-//     img.setHeight(dH);
+  // استبدل الوسم بمسافة واحدة — لا تفريغ لا حذف
+  body.replaceText(tag, " ");
+  para.setAlignment(DocumentApp.HorizontalAlignment.CENTER);
 
-//   } else if (parent.getType() === DocumentApp.ElementType.TABLE_CELL) {
-//     var cell = parent.asTableCell();
-//     cell.clear();
-//     var p2   = cell.appendParagraph("");
-//     p2.setAlignment(DocumentApp.HorizontalAlignment.CENTER);
-//     var img2 = p2.appendInlineImage(imageBlob);
-//     img2.setWidth(320);
-//     img2.setHeight(Math.round(320 * _chartH / _chartW));
-//   }
-// }
+  // هل الفقرة داخل خلية جدول؟
+  var isInCell = para.getParent().getType() === DocumentApp.ElementType.TABLE_CELL;
 
-// function replaceTagWithImage(doc, tag, imageBlob) {
-//   if (!imageBlob) {
-//     doc.getBody().replaceText(tag, "[تعذّر إنشاء الرسم البياني]");
-//     return;
-//   }
-
-//   var body  = doc.getBody();
-//   var found = body.findText(tag);
-//   if (!found) return;
-
-//   var parent = found.getElement().getParent();
-
-//   // ← الأرقام مباشرة — لا متغيرات عالمية
-//   // A4 content width = 451pt (595 - 72×2)
-//   // نسبة الرسم 900×560 → 451 × (560/900) = 280pt
-//   var IMG_W = 451;
-//   var IMG_H = 280;
-
-//   if (parent.getType() === DocumentApp.ElementType.PARAGRAPH) {
-//     var para = parent.asParagraph();
-//     para.setText("");
-//     para.setAlignment(DocumentApp.HorizontalAlignment.CENTER);
-//     var img = para.appendInlineImage(imageBlob);
-//     img.setWidth(IMG_W);
-//     img.setHeight(IMG_H);
-
-//   } else if (parent.getType() === DocumentApp.ElementType.TABLE_CELL) {
-//     var cell = parent.asTableCell();
-//     cell.clear();
-//     var p2   = cell.appendParagraph("");
-//     p2.setAlignment(DocumentApp.HorizontalAlignment.CENTER);
-//     var img2 = p2.appendInlineImage(imageBlob);
-//     img2.setWidth(320);
-//     img2.setHeight(199); // 320 × (560/900)
-//   }
-// }
+  var img = para.appendInlineImage(imageBlob);
+  // الدونات أقرب للمربع — A4 عرض مناسب مع ارتفاع أكبر
+  // img.setWidth(430);
+  // img.setHeight(Math.round(430 * _chartH / _chartW)); // 430 × 540/700 ≈ 332
+  img.setWidth(451);
+  img.setHeight(Math.round(451 * _chartH / _chartW)); // 451 × 700/900 ≈ 351
+}
 
 /**
  * دالة استبدال الوسوم الشاملة
@@ -622,83 +613,6 @@ function parseSheetDate(cellValue) {
   }
 
   return null;
-}
-
-/**
- * دالة آمنة لإدراج الصورة في موقع الوسم بدون أخطاء النصوص الفارغة
- */
-// function replaceTagWithImage(doc, tag, imageBlob) {
-//   var body = doc.getBody();
-//   var found = body.findText(tag);
-
-//   if (found) {
-//     var element = found.getElement();
-//     var parent = element.getParent();
-
-//     // 1. استبدال نص الوسم بمسافة واحدة لتجنب خطأ النص الفارغ Empty Text Element
-//     body.replaceText(tag, " ");
-
-//     // 2. إدراج الصورة داخل الفقرة الحاوية للوسم
-//     if (parent.getType() == DocumentApp.ElementType.PARAGRAPH) {
-//       var paragraph = parent.asParagraph();
-//       var img = paragraph.appendInlineImage(imageBlob);
-      
-//       // ضبط أبعاد الصورة
-//       img.setWidth(480);
-//       img.setHeight(300);
-//     } 
-//     // إذا كان الوسم داخل خلية جدول
-//     else {
-//       var container = parent.getParent();
-//       if (container && container.getType() == DocumentApp.ElementType.TABLE_CELL) {
-//         var cell = container.asTableCell();
-//         var img = cell.appendParagraph("").appendInlineImage(imageBlob);
-        
-//         img.setWidth(480);
-//         img.setHeight(390);
-//       }
-//     }
-//   }
-// }
-
-/**
- * دالة استبدال الوسوم الشاملة
- */
-function replaceAllTags(doc, replacements) {
-  var body = doc.getBody();
-  var numChildren = body.getNumChildren();
-  
-  for (var i = 0; i < numChildren; i++) {
-    var child = body.getChild(i);
-    var type = child.getType();
-    
-    if (type == DocumentApp.ElementType.TABLE) {
-      var table = child.asTable();
-      for (var r = 0; r < table.getNumRows(); r++) {
-        var row = table.getRow(r);
-        for (var c = 0; c < row.getNumCells(); c++) {
-          var cell = row.getCell(c);
-          for (var key in replacements) {
-            cell.replaceText(key, replacements[key]);
-          }
-        }
-      }
-    } else {
-      for (var key in replacements) {
-        body.replaceText(key, replacements[key]);
-      }
-    }
-  }
-
-  var header = doc.getHeader();
-  if (header) {
-    for (var key in replacements) { header.replaceText(key, replacements[key]); }
-  }
-
-  var footer = doc.getFooter();
-  if (footer) {
-    for (var key in replacements) { footer.replaceText(key, replacements[key]); }
-  }
 }
 
 /**
@@ -810,4 +724,103 @@ function createMultiVariableChart_dnt(sheet, counts, monthName, year) {
 
   Logger.log("✅ Donut chart OK");
   return blob;
+}
+
+function createMultiVariableChart_dnt_all(sheet, counts, monthName, year) {
+
+  var raw = [
+    ["طلب خدمة",     counts.TotalTaskRequest                                          || 0],
+    ["مواصفات فنية", counts.TotalTechReq                                              || 0],
+    ["تحليل وتقييم", counts.TotalEvaluation                                           || 0],
+    ["مراسلات أخرى", counts.TotalOthers                                               || 0],
+    ["طلب مباشر",    counts.TotalDirectRequests    || counts.TotalTotalDirectRequests    || 0],
+    ["تكليف مباشر",  counts.TotalDirectAssignments || counts.TotalTotalDirectAssignments || 0],
+    ["اتصال",         counts.TotalCalls             || counts.TotalTotalCalls             || 0],
+  ];
+
+  // احذف الفئات الصفر
+  var filtered = raw.filter(function(c) { return c[1] > 0; });
+  filtered.sort(function(a, b) { return b[1] - a[1]; });
+
+  // احسب المجموع ثم ادمج النسبة في الاسم ← تظهر في legend
+  var total = filtered.reduce(function(sum, c) { return sum + c[1]; }, 0);
+  var categories = filtered.map(function(c) {
+    var pct = total > 0 ? Math.round(c[1] * 100 / total) : 0;
+    return [c[0] + "   " + pct + "%", c[1]];
+  });
+
+  // var CW = 700;
+  // var CH = 540;
+  var CW = 900;
+  var CH = 700;
+  _chartW = CW;
+  _chartH = CH;
+
+  // var title = "توزيع المهام المكتملة" +
+  //   ((monthName && year) ? " · " + monthName + " " + year : "");
+
+  // var title = "توزيع المهام المكتملة" +
+  //   ((monthName && year) ? "  |  " + monthName + "  ←  " + year : "");
+
+  var title = "توزيع المهام المكتملة خلال الفترة من " + monthName + " إلى " + year;
+
+  var startRow = sheet.getLastRow() + 5;
+  sheet.getRange(startRow, 1, categories.length, 2).setValues(categories);
+
+  var colors = [
+    "#1A56DB", // أزرق
+    "#0C2340", // كحلي
+    "#059669", // أخضر
+    "#7C3AED", // بنفسجي
+    "#D97706", // عنبري
+    "#60A5FA", // أزرق فاتح
+    "#EC4899", // وردي
+  ];
+
+  var builder = sheet.newChart()
+    .setChartType(Charts.ChartType.PIE)
+    .addRange(sheet.getRange(startRow, 1, categories.length, 2))
+    .setPosition(startRow, 4, 0, 0)
+    .setOption("title",           title)
+    .setOption("titleTextStyle",  { color: "#0C2340", fontSize: 14, bold: true })
+    .setOption("width",           CW)
+    .setOption("height",          CH)
+    .setOption("backgroundColor", { fill: "#FFFFFF" })
+    .setOption("colors",          colors)
+    .setOption("pieHole",         0.45)
+    // .setOption("pieSliceText",    "none") // لا نص على الشرائح — النسبة في legend فقط
+    .setOption("pieSliceText", "percentage")
+    .setOption("pieSliceTextStyle", {
+      color:    "#FFFFFF",
+      fontSize: 20,
+      bold:     true
+    })
+    .setOption("legend", {
+      position:  "right",
+      textStyle: { color: "#334155", fontSize: 25 }
+    })
+    .setOption("chartArea", { left: "5%", top: "15%", width: "58%", height: "76%" });
+
+  sheet.insertChart(builder.build());
+  var charts   = sheet.getCharts();
+  var inserted = charts[charts.length - 1];
+  var blob     = inserted.getAs("image/png");
+
+  sheet.removeChart(inserted);
+  sheet.getRange(startRow, 1, categories.length, 2).clearContent();
+
+  Logger.log("✅ Donut OK — " + categories.length + " فئات");
+  return blob;
+}
+
+function formatArabicDate(dateStr) {
+  var arabicMonths = [
+    "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+    "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
+  ];
+  var parts = dateStr.split("-");
+  var day   = parseInt(parts[2], 10);
+  var month = arabicMonths[parseInt(parts[1], 10) - 1];
+  var year  = parts[0];
+  return day + " " + month + " " + year;
 }
