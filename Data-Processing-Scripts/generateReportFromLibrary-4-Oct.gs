@@ -282,9 +282,9 @@ function generateReportFromLibrary(startDateInput, endDateInput) {
     TotalTechReq: 0,       // مراسلات مواصفات
     TotalEvaluation: 0,   // مراسلات تحليل
     TotalOthers: 0,      // مراسلات أخرى
-    TotalTotalCalls: 0,             // اتصال
-    TotalTotalDirectRequests: 0,    // طلب مباشر
-    TotalTotalDirectAssignments: 0  // تكليف مباشر
+    TotalCalls: 0,             // اتصال
+    TotalDirectRequests: 0,    // طلب مباشر
+    TotalDirectAssignments: 0  // تكليف مباشر
   };
 
   // 3. فلترة البيانات وحساب الإحصائيات
@@ -321,16 +321,16 @@ function generateReportFromLibrary(startDateInput, endDateInput) {
           //   counts.TotalOthers++;
           // }
           else if (typeVal.indexOf("اتصال") !== -1) {
-            counts.TotalTotalCalls++;
+            counts.TotalCalls++;
           }
           else if (typeVal.indexOf("طلب مباشر") !== -1) {
-            counts.TotalTotalDirectRequests++;
+            counts.TotalDirectRequests++;
           }
           else if (typeVal.indexOf("تكليف مباشر") !== -1) {
-            counts.TotalTotalDirectAssignments++;
+            counts.TotalDirectAssignments++;
           }
           else if (typeVal.indexOf("مراسلة") !== -1) {
-            // counts.TotalTotalCalls++;
+            // counts.TotalCalls++;
             var typeValC = String(data[i][TASK_CATEGORY_COL - 1] || "").trim().toLowerCase();
 
             if (typeValC.indexOf("المواصفات الفنية") !== -1) {
@@ -367,9 +367,9 @@ function generateReportFromLibrary(startDateInput, endDateInput) {
       "<<مراسلات_مواصفات>>": String(counts.TotalTechReq),
       "<<مراسلات_تحليل>>": String(counts.TotalEvaluation),
       "<<مراسلات_أخرى>>": String(counts.TotalOthers),
-      "<<اتصال>>": String(counts.TotalTotalCalls),
-      "<<طلب_مباشر>>": String(counts.TotalTotalDirectRequests),
-      "<<تكليف_مباشر>>": String(counts.TotalTotalDirectAssignments),
+      "<<اتصال>>": String(counts.TotalCalls),
+      "<<طلب_مباشر>>": String(counts.TotalDirectRequests),
+      "<<تكليف_مباشر>>": String(counts.TotalDirectAssignments),
       "<<مجموع_عدد_المهام>>": String(completedTasks)
     };
 
