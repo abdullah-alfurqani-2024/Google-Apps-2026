@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html dir="rtl">
+  <head>
+    <base target="_top">
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        padding: 15px;
+        background-color: #f8f9fa;
+        color: #333;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+        font-size: 14px;
+      }
+      input[type="date"] {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        box-sizing: border-box;
+        font-size: 14px;
+      }
+      .btn-container {
+        text-align: center;
+        margin-top: 20px;
+      }
+      button {
+        background-color: #1a73e8;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 14px;
+      }
+      button:hover {
+        background-color: #1557b0;
+      }
+      #loader {
+        display: none;
+        color: #1a73e8;
+        font-size: 13px;
+        margin-top: 10px;
+        font-weight: bold;
+      }
+      #result {
+        display: none;
+        margin-top: 15px;
+        padding: 10px;
+        background-color: #e6f4ea;
+        border: 1px solid #34a853;
+        border-radius: 6px;
+        text-align: center;
+      }
+      #result a {
+        color: #137333;
+        font-weight: bold;
+        text-decoration: none;
+      }
+      #result a:hover {
+        text-decoration: underline;
+      }
+      .close-btn {
+        background-color: #5f6368;
+        margin-top: 10px;
+      }
+      .close-btn:hover {
+        background-color: #3c4043;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="formSection">
+      <div class="form-group">
+        <label for="startDate">تاريخ البدء (من):</label>
+        <input type="date" id="startDate" required>
+      </div>
+     
+      <div class="form-group">
+        <label for="endDate">تاريخ النهاية (إلى):</label>
+        <input type="date" id="endDate" required>
+      </div>
+     
+      <div class="btn-container">
+        <button id="submitBtn" onclick="submitDates()">إنشاء التقرير</button>
+        <div id="loader">⏳ جاري استخراج البيانات وإنشاء التقرير...</div>
+      </div>
+    </div>
+
+
+    <!-- قسم عرض النتيجة والرابط -->
+    <div id="result">
+      <div id="resultText"></div>
+      <br>
+      <a id="reportLink" href="#" target="_blank">📄 اضغط هنا لفتح التقرير</a>
+      <br><br>
+      <button class="close-btn" onclick="google.script.host.close()">إغلاق النافذة</button>
+    </div>
+
+
+    <script>
+      function submitDates() {
+        var start = document.getElementById('startDate').value;
+        var end = document.getElementById('endDate').value;
+       
+        if (!start || !end) {
+          alert("يرجى اختيار تاريخ البدء وتاريخ النهاية من التقويم.");
+          return;
+        }
+       
+        if (start > end) {
+          alert("تاريخ البدء يجب أن يكون قبل أو يساوي تاريخ النهاية.");
+          return;
+        }
+       
+        document.getElementById('submitBtn').style.display = 'none';
+        document.getElementById('loader').style.display = 'block';
+       
+        // استدعاء الدالة البرمجية
+        google.script.run
+          .withSuccessHandler(onSuccess)
+          .withFailureHandler(onFailure)
+          .processReportGeneration(start, end);
+      }
+     
+      function onSuccess(response) {
+        document.getElementById('loader').style.display = 'none';
+       
+        if (response.success) {
+          document.getElementById('formSection').style.display = 'none';
+          document.getElementById('resultText').innerText = "✅ تم إنشاء التقرير بنجاح!\nإجمالي عدد المهام: " + response.total;
+          document.getElementById('reportLink').href = response.url;
+          document.getElementById('result').style.display = 'block';
+        } else {
+          alert("حدث خطأ أثناء الإنشاء: " + response.error);
+          document.getElementById('submitBtn').style.display = 'inline-block';
+        }
+      }
+
+
+      function onFailure(error) {
+        document.getElementById('loader').style.display = 'none';
+        document.getElementById('submitBtn').style.display = 'inline-block';
+        alert("حدث خطأ غير متوقع: " + error.message);
+      }
+    </script>
+  </body>
+</html>
