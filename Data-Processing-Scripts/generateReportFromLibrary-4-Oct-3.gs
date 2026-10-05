@@ -348,7 +348,7 @@ function generateReportFromLibrary(startDateInput, endDateInput) {
       // var chartImage = createMultiVariableChart_dnt(masterSheet, counts, monthNameArabic, yearString);
       // var chartImage = createMultiVariableChart_dnt_all(masterSheet, counts, monthNameArabic, yearString);
       // var chartImage = createMultiVariableChart_dnt_all(masterSheet, counts, startDateInput, endDateInput);
-      var chartImage = createMultiVariableChart(masterSheet, counts, formatArabicDate(startDateInput), formatArabicDate(endDateInput));
+      var chartImage = createMultiVariableChart_dnt_all(masterSheet, counts, formatArabicDate(startDateInput), formatArabicDate(endDateInput));
       // replaceTagWithImage(doc, "<<الرسم_البياني>>", chartImage);
       // replaceTagWithImage_dnt(doc, "<<الرسم_البياني>>", chartImage);
       replaceTagWithImage_dnt_all(doc, "<<الرسم_البياني>>", chartImage);
@@ -357,16 +357,16 @@ function generateReportFromLibrary(startDateInput, endDateInput) {
     }
 
     // 
-    if (totalTasks > 0) {
-      // var chartImage = createMultiVariableChart(masterSheet, counts, monthNameArabic, yearString);
-      // var chartImage = createMultiVariableChart_dnt(masterSheet, counts, monthNameArabic, yearString);
-      // var chartImage = createMultiVariableChart_dnt_all(masterSheet, counts, monthNameArabic, yearString);
-      // var chartImage = createMultiVariableChart_dnt_all(masterSheet, counts, startDateInput, endDateInput);
-      var chartImage = createMultiVariableChart(masterSheet, counts, formatArabicDate(startDateInput), formatArabicDate(endDateInput));
-      // replaceTagWithImage(doc, "<<الرسم_البياني>>", chartImage);
-      // replaceTagWithImage_dnt(doc, "<<الرسم_البياني>>", chartImage);
-      replaceTagWithImage_dnt_all(doc, "<<الرسم_البياني>>", chartImage);
-    }
+    // if (totalTasks > 0) {
+    //   // var chartImage = createMultiVariableChart(masterSheet, counts, monthNameArabic, yearString);
+    //   // var chartImage = createMultiVariableChart_dnt(masterSheet, counts, monthNameArabic, yearString);
+    //   // var chartImage = createMultiVariableChart_dnt_all(masterSheet, counts, monthNameArabic, yearString);
+    //   // var chartImage = createMultiVariableChart_dnt_all(masterSheet, counts, startDateInput, endDateInput);
+    //   var chartImage = createMultiVariableChart_dnt_all(masterSheet, counts, formatArabicDate(startDateInput), formatArabicDate(endDateInput));
+    //   // replaceTagWithImage(doc, "<<الرسم_البياني>>", chartImage);
+    //   // replaceTagWithImage_dnt(doc, "<<الرسم_البياني>>", chartImage);
+    //   replaceTagWithImage_dnt_all(doc, "<<الرسم_البياني>>", chartImage);
+    // }
     // 
 
     doc.saveAndClose();
@@ -781,14 +781,14 @@ function createMultiVariableChart_dnt_all(sheet, counts, monthName, year) {
     .setChartType(Charts.ChartType.PIE)
     .addRange(sheet.getRange(startRow, 1, categories.length, 2))
     .setPosition(startRow, 4, 0, 0)
-    .setOption("title",           title)
-    .setOption("titleTextStyle",  { color: "#0C2340", fontSize: 14, bold: true })
-    .setOption("width",           CW)
-    .setOption("height",          CH)
+    .setOption("title", title)
+    .setOption("titleTextStyle", { color: "#0C2340", fontSize: 14, bold: true })
+    .setOption("width", CW)
+    .setOption("height", CH)
     .setOption("backgroundColor", { fill: "#FFFFFF" })
-    .setOption("colors",          colors)
-    .setOption("pieHole",         0.45)
-    // .setOption("pieSliceText",    "none") // لا نص على الشرائح — النسبة في legend فقط
+    .setOption("colors", colors)
+    .setOption("pieHole", 0.45)
+    // .setOption("pieSliceText", "none") // لا نص على الشرائح — النسبة في legend فقط
     .setOption("pieSliceText", "percentage")
     .setOption("pieSliceTextStyle", {
       color:    "#FFFFFF",
